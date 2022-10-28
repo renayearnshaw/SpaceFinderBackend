@@ -1,5 +1,5 @@
-import { Stack } from "aws-cdk-lib";
-import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
+import { Stack } from 'aws-cdk-lib';
+import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export class GenericTable {
   private name: string;
