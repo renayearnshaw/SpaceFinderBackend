@@ -1,10 +1,12 @@
-import { v4 } from 'uuid';
+import { S3 } from 'aws-sdk';
 
 export async function handler(event: any, context: any) {
+  // Use the AWS SDK to list all our S3 buckets
+  const s3Client = new S3();
+  const buckets = await s3Client.listBuckets().promise();
+
   return {
     statusCode: 200,
-    // Add a random string using an external package
-    // to show how bundling of dependencies works
-    body: 'Hello from lambda!' + v4(),
+    body: 'Here are your buckets: ' + JSON.stringify(buckets.Buckets),
   };
 }
