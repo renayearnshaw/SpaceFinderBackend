@@ -1,0 +1,47 @@
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+} from 'aws-lambda';
+import { DynamoDB } from 'aws-sdk';
+import { v4 } from 'uuid';
+
+const dbClient = new DynamoDB.DocumentClient();
+
+// This lambda is used with API Gateway
+export async function handler(
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> {
+  
+  const result: APIGatewayProxyResult = {
+    statusCode: 200,
+    body: 'Hello from DynamoDB',
+  };
+
+  // An item to be inserted into the DynamoDB table.
+  // It contains a primary key field called 'spaceId' with a unique value.
+  const item = {
+    spaceId: v4(),
+  };
+
+  try {
+    // Insert item into the DynamoDB table
+    await dbClient
+      .put({
+        TableName: 'Spaces',
+        Item: item,
+      })
+      .promise();
+  } catch (error) {
+    // As of TypeScript 4.0 the type of a catch clause variable is 'unknown',
+    // so we must use type checking at runtime
+    if (error instanceof Error) {
+      result.body = error.message;
+    } else {
+      result.body = String(error);
+    }
+  }
+
+  return result;
+}

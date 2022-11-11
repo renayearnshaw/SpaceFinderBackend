@@ -1,4 +1,4 @@
-import { handler } from '../../services/node-lambda/hello';
+import { handler } from '../../services/SpacesTable/Create';
 
 // Run the lambda function locally so that we can debug it
-handler({}, {});
+handler({} as any, {} as any);
