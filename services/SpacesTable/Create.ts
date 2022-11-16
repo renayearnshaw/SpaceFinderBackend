@@ -13,16 +13,15 @@ export async function handler(
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> {
-  
-  const result: APIGatewayProxyResult = {
-    statusCode: 200,
-    body: 'Hello from DynamoDB',
-  };
-
   // An item to be inserted into the DynamoDB table.
   // It contains a primary key field called 'spaceId' with a unique value.
-  const item = {
-    spaceId: v4(),
+  const item =
+    typeof event.body === 'object' ? event.body : JSON.parse(event.body);
+  item.spaceId = v4();
+
+  const result: APIGatewayProxyResult = {
+    statusCode: 200,
+    body: `Created item with id: ${item.spaceId}`,
   };
 
   try {
