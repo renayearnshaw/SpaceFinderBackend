@@ -6,6 +6,7 @@ import {
 import { DynamoDB } from 'aws-sdk';
 import { v4 } from 'uuid';
 
+const TABLE_NAME = process.env.TABLE_NAME
 const dbClient = new DynamoDB.DocumentClient();
 
 // This lambda is used with API Gateway
@@ -28,7 +29,7 @@ export async function handler(
     // Insert item into the DynamoDB table
     await dbClient
       .put({
-        TableName: 'Spaces',
+        TableName: TABLE_NAME!,
         Item: item,
       })
       .promise();

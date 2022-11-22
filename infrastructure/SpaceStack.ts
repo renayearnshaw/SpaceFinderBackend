@@ -8,7 +8,11 @@ import { GenericTable } from './GenericTable';
 
 export class SpaceStack extends Stack {
   private api = new RestApi(this, 'SpaceApi');
-  private spacesTable = new GenericTable('Spaces', 'spaceId', this);
+  private spacesTable = new GenericTable(this, {
+    name: 'Spaces',
+    primaryKey: 'spaceId',
+    createLambdaPath: 'Create',
+  });
 
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
@@ -26,5 +30,10 @@ export class SpaceStack extends Stack {
     const lambdaIntegration = new LambdaIntegration(helloLambda);
     const lambdaResource = this.api.root.addResource('hello');
     lambdaResource.addMethod('GET', lambdaIntegration);
+
+    // When a POST request is made against the 'spaces' endpoint
+    // an entity will be created in the 'Spaces' table in DynamoDB
+    const spaceResource = this.api.root.addResource('spaces');
+    spaceResource.addMethod('POST', this.spacesTable.createLambdaIntegration);
   }
 }

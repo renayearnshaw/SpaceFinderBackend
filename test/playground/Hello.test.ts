@@ -1,4 +1,4 @@
-import { handler } from '../../services/SpacesTable/Create';
+import { handler } from '../../services/tables/Spaces/Create';
 
 const event = {
   body: {
