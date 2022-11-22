@@ -13,7 +13,8 @@
       "env": {
         "AWS_PROFILE": "uktv-sandbox",
         // Need to add region to access DynamoDB
-        "AWS_REGION": "eu-west-1"
+        "AWS_REGION": "eu-west-1",
+        "TABLE_NAME": "Spaces"
       }
     }
   ]

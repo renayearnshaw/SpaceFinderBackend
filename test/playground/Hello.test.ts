@@ -1,4 +1,4 @@
-import { handler } from '../../services/tables/Spaces/Create';
+import { handler } from '../../services/tables/Spaces/Read';
 
 const event = {
   body: {
@@ -7,4 +7,9 @@ const event = {
 };
 
 // Run the lambda function locally so that we can debug it
-handler(event as any, {} as any);
+handler({} as any, {} as any).then((apiResult) => {
+  // format the body for easier viewing
+  const items = JSON.parse(apiResult.body);
+  // Add a console.log call so that we can put a breakpoint here
+  console.log(123);
+});
