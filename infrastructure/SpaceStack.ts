@@ -12,6 +12,7 @@ export class SpaceStack extends Stack {
     name: 'Spaces',
     primaryKey: 'spaceId',
     createLambdaPath: 'Create',
+    readLambdaPath: 'Read',
   });
 
   constructor(scope: Construct, id: string, props: StackProps) {
@@ -31,9 +32,11 @@ export class SpaceStack extends Stack {
     const lambdaResource = this.api.root.addResource('hello');
     lambdaResource.addMethod('GET', lambdaIntegration);
 
+    const spaceResource = this.api.root.addResource('spaces');
     // When a POST request is made against the 'spaces' endpoint
     // an entity will be created in the 'Spaces' table in DynamoDB
-    const spaceResource = this.api.root.addResource('spaces');
     spaceResource.addMethod('POST', this.spacesTable.createLambdaIntegration);
+    // A GET request made against the 'spaces' endpoint will return a single entity
+    spaceResource.addMethod('GET', this.spacesTable.readLambdaIntegration);
   }
 }
