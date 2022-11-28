@@ -1,5 +1,6 @@
 import {
   APIGatewayProxyEvent,
+  APIGatewayProxyEventQueryStringParameters,
   APIGatewayProxyResult,
   Context,
 } from 'aws-lambda';
@@ -10,10 +11,10 @@ const PRIMARY_KEY = process.env.PRIMARY_KEY;
 const dbClient = new DynamoDB.DocumentClient();
 
 // This lambda is used with API Gateway
-export async function handler(
+export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
-): Promise<APIGatewayProxyResult> {
+): Promise<APIGatewayProxyResult> => {
   const result: APIGatewayProxyResult = {
     statusCode: 200,
     body: '',
@@ -22,30 +23,16 @@ export async function handler(
   try {
     if (event.queryStringParameters) {
       if (PRIMARY_KEY! in event.queryStringParameters) {
-        const primaryKeyValue = event.queryStringParameters[PRIMARY_KEY!];
-        // Read the entity with this primary key in the DynamoDB table
-        const response = await dbClient
-          .query({
-            TableName: TABLE_NAME!,
-            KeyConditionExpression: '#primaryKeyName = :primaryKeyValue',
-            ExpressionAttributeNames: {
-              '#primaryKeyName': PRIMARY_KEY!,
-            },
-            ExpressionAttributeValues: {
-              ':primaryKeyValue': primaryKeyValue,
-            },
-          })
-          .promise();
-          result.body = JSON.stringify(response);
+        result.body = await readEntityWithPrimaryKey(
+          event.queryStringParameters
+        );
+      } else {
+        result.body = await readEntityWithSecondaryKey(
+          event.queryStringParameters
+        );
       }
     } else {
-      // Read all entities in the DynamoDB table
-      const response = await dbClient
-        .scan({
-          TableName: TABLE_NAME!,
-        })
-        .promise();
-        result.body = JSON.stringify(response);
+      result.body = await readAllEntities();
     }
   } catch (error) {
     // As of TypeScript 4.0 the type of a catch clause variable is 'unknown',
@@ -58,4 +45,56 @@ export async function handler(
   }
 
   return result;
-}
+};
+
+const readAllEntities = async () => {
+  // Read all entities in the DynamoDB table
+  const response = await dbClient
+    .scan({
+      TableName: TABLE_NAME!,
+    })
+    .promise();
+  return JSON.stringify(response);
+};
+
+const readEntityWithPrimaryKey = async (
+  queryStringParameters: APIGatewayProxyEventQueryStringParameters
+) => {
+  const primaryKeyValue = queryStringParameters[PRIMARY_KEY!];
+  // Read the entity with this primary key in the DynamoDB table
+  const response = await dbClient
+    .query({
+      TableName: TABLE_NAME!,
+      KeyConditionExpression: '#keyName = :keyValue',
+      ExpressionAttributeNames: {
+        '#keyName': PRIMARY_KEY!,
+      },
+      ExpressionAttributeValues: {
+        ':keyValue': primaryKeyValue,
+      },
+    })
+    .promise();
+  return JSON.stringify(response);
+};
+
+const readEntityWithSecondaryKey = async (
+  queryStringParameters: APIGatewayProxyEventQueryStringParameters
+) => {
+  const secondaryKeyName = Object.keys(queryStringParameters)[0];
+  const secondaryKeyValue = queryStringParameters[secondaryKeyName!];
+  // Read the entity with this secondary key in the DynamoDB table
+  const response = await dbClient
+    .query({
+      TableName: TABLE_NAME!,
+      IndexName: secondaryKeyName,
+      KeyConditionExpression: '#keyName = :keyValue',
+      ExpressionAttributeNames: {
+        '#keyName': secondaryKeyName,
+      },
+      ExpressionAttributeValues: {
+        ':keyValue': secondaryKeyValue,
+      },
+    })
+    .promise();
+  return JSON.stringify(response);
+};
