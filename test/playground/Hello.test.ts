@@ -1,10 +1,13 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler } from '../../services/tables/Spaces/Read';
+import { handler } from '../../services/tables/Spaces/Update';
 
 const event: APIGatewayProxyEvent = {
   queryStringParameters: {
-    location: 'London',
+    spaceId: '97f6edbe-beac-4ca9-a9d2-16411491463a',
   },
+  body: {
+    location: 'new location'
+  }
 } as any;
 
 // Run the lambda function locally so that we can debug it

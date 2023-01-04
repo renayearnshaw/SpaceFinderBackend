@@ -18,3 +18,12 @@ Content-Type: application/json
 }
 ###
 
+PUT {{endpoint}}/spaces?spaceId=97f6edbe-beac-4ca9-a9d2-16411491463a
+Content-Type: application/json
+
+{
+  "location": "London again"
+}
+###
+
+
