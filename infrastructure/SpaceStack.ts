@@ -15,6 +15,7 @@ export class SpaceStack extends Stack {
     createLambdaPath: 'Create',
     readLambdaPath: 'Read',
     updateLambdaPath: 'Update',
+    deleteLambdaPath: 'Delete',
   });
 
   constructor(scope: Construct, id: string, props: StackProps) {
@@ -42,5 +43,7 @@ export class SpaceStack extends Stack {
     spaceResource.addMethod('GET', this.spacesTable.readLambdaIntegration);
     // A PUT request made against the 'spaces' endpoint will update a single entity
     spaceResource.addMethod('PUT', this.spacesTable.updateLambdaIntegration);
+    // A DELETE request made against the 'spaces' endpoint will delete a single entity
+    spaceResource.addMethod('DELETE', this.spacesTable.deleteLambdaIntegration);
   }
 }
