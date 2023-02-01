@@ -4,6 +4,7 @@ import {
   Context,
 } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
+import { getBody } from '../../utils/eventBody';
 
 const TABLE_NAME = process.env.TABLE_NAME as string;
 const PRIMARY_KEY = process.env.PRIMARY_KEY as string;
@@ -17,8 +18,7 @@ export async function handler(
   // An item to be updated in the DynamoDB table.
   // The query string parameter is the primary key of the item to be updated.
   // The body contains the name of a field and the new value.
-  const requestBody =
-    typeof event.body === 'object' ? event.body : JSON.parse(event.body);
+  const requestBody = getBody(event);
   const primaryKeyValue = event.queryStringParameters?.[PRIMARY_KEY];
 
   const result: APIGatewayProxyResult = {

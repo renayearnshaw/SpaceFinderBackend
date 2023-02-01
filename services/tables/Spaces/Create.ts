@@ -4,7 +4,8 @@ import {
   Context,
 } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-import { v4 } from 'uuid';
+import { getBody } from '../../utils/eventBody';
+import { randomNumber } from '../../utils/randomNumber';
 import { MissingFieldError, validateSpace } from '../../utils/spaceValidator';
 
 const TABLE_NAME = process.env.TABLE_NAME;
@@ -17,15 +18,14 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const result: APIGatewayProxyResult = {
     statusCode: 200,
-    body: 'Hello from DynamoDB',
+    body: '',
   };
 
   try {
     // An item to be inserted into the DynamoDB table.
     // It contains a primary key field called 'spaceId' with a unique value.
-    const item =
-      typeof event.body === 'object' ? event.body : JSON.parse(event.body);
-    item.spaceId = v4();
+    const item = getBody(event);
+    item.spaceId = randomNumber();
     validateSpace(item);
 
     // Insert item into the DynamoDB table

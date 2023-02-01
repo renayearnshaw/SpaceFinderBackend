@@ -3,7 +3,7 @@
 GET {{endpoint}}/spaces
 ###
 
-GET {{endpoint}}/spaces?spaceId=fdaa11fc-abd8-47b3-9fd5-6730329ba945
+GET {{endpoint}}/spaces?spaceId=7ab8194b-5def-414d-b0fa-e8449bc9949f
 ###
 
 GET {{endpoint}}/spaces?location=London
@@ -18,11 +18,11 @@ Content-Type: application/json
 }
 ###
 
-PUT {{endpoint}}/spaces?spaceId=97f6edbe-beac-4ca9-a9d2-16411491463a
+PUT {{endpoint}}/spaces?spaceId=7ab8194b-5def-414d-b0fa-e8449bc9949f
 Content-Type: application/json
 
 {
-  "location": "London again"
+  "location": "Harrogate"
 }
 ###
 
