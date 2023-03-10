@@ -12,7 +12,7 @@ export class SpaceAuthorizer {
 
   private userPool: UserPool;
   private userPoolClient: UserPoolClient;
-  private authorizer: CognitoUserPoolsAuthorizer;
+  public authorizer: CognitoUserPoolsAuthorizer;
 
   constructor(scope: Construct, api: RestApi) {
     this.scope = scope;
@@ -22,6 +22,8 @@ export class SpaceAuthorizer {
 
   private initialse() {
     this.createUserPool();
+    this.addUserPoolClient();
+    this.createAuthorizer();
   }
 
   private createUserPool() {
@@ -38,5 +40,35 @@ export class SpaceAuthorizer {
       value: this.userPool.userPoolId,
     });
   }
+
+  private addUserPoolClient() {
+    // Configure an app client used by the user pool
+    this.userPoolClient = this.userPool.addClient('SpaceUserPool-client', {
+      userPoolClientName: 'SpaceUserPool-client',
+      authFlows: {
+        adminUserPassword: true,
+        custom: true,
+        userPassword: true,
+        userSrp: true,
+      },
+      generateSecret: false,
+    });
+    // create an output in the stack with a key of 'UserPoolClientId'
+    new CfnOutput(this.scope, 'UserPoolClientId', {
+      value: this.userPoolClient.userPoolClientId,
+    });
+  }
+
+  private createAuthorizer() {
+    this.authorizer = new CognitoUserPoolsAuthorizer(
+      this.scope,
+      'SpaceAuthorizer',
+      {
+        cognitoUserPools: [this.userPool],
+        authorizerName: 'SpaceAuthorizer',
+        identitySource: 'method.request.header.Authorization',
+      }
+    );
+    this.authorizer._attachToApi(this.api);
+  }
 }
-2;

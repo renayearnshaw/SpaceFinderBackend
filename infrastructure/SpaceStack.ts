@@ -1,5 +1,10 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import {
+  AuthorizationType,
+  LambdaIntegration,
+  MethodOptions,
+  RestApi,
+} from 'aws-cdk-lib/aws-apigateway';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
@@ -36,9 +41,16 @@ export class SpaceStack extends Stack {
     s3ListPolicy.addResources('*');
     helloLambda.addToRolePolicy(s3ListPolicy);
 
+    const optionsWithAuthorizer: MethodOptions = {
+      authorizationType: AuthorizationType.COGNITO,
+      authorizer: {
+        authorizerId: this.authorizer.authorizer.authorizerId,
+      },
+    };
+
     const lambdaIntegration = new LambdaIntegration(helloLambda);
     const lambdaResource = this.api.root.addResource('hello');
-    lambdaResource.addMethod('GET', lambdaIntegration);
+    lambdaResource.addMethod('GET', lambdaIntegration, optionsWithAuthorizer);
 
     const spaceResource = this.api.root.addResource('spaces');
     // When a POST request is made against the 'spaces' endpoint
