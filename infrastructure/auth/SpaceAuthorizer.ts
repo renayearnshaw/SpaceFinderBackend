@@ -9,6 +9,7 @@ import {
   UserPoolClient,
 } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
+import { SpaceIdentityPool } from './SpaceIdentityPool';
 
 export class SpaceAuthorizer {
   private scope: Construct;
@@ -17,6 +18,7 @@ export class SpaceAuthorizer {
   private userPool: UserPool;
   private userPoolClient: UserPoolClient;
   public authorizer: CognitoUserPoolsAuthorizer;
+  private identityPool: SpaceIdentityPool;
 
   constructor(scope: Construct, api: RestApi) {
     this.scope = scope;
@@ -28,6 +30,7 @@ export class SpaceAuthorizer {
     this.createUserPool();
     this.addUserPoolClient();
     this.createAuthorizer();
+    this.initialiseIdentityPool();
     this.createAdminGroup();
   }
 
@@ -77,10 +80,19 @@ export class SpaceAuthorizer {
     this.authorizer._attachToApi(this.api);
   }
 
+  private initialiseIdentityPool() {
+    this.identityPool = new SpaceIdentityPool(
+      this.scope,
+      this.userPool,
+      this.userPoolClient
+    );
+  }
+
   private createAdminGroup() {
     new CfnUserPoolGroup(this.scope, 'admin', {
       groupName: 'admin',
       userPoolId: this.userPool.userPoolId,
+      roleArn: this.identityPool.adminRole.roleArn,
     });
   }
 }
